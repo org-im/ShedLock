@@ -24,11 +24,9 @@ import net.javacrumbs.shedlock.micronaut.SchedulerLock;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 import java.util.Optional;
 
-import static java.time.Instant.now;
 import static java.util.Objects.requireNonNull;
 
 class MicronautLockConfigurationExtractor {
@@ -50,11 +48,11 @@ class MicronautLockConfigurationExtractor {
     }
 
     private LockConfiguration getLockConfiguration(AnnotationValue<SchedulerLock> annotation) {
-        Instant now = now();
         return new LockConfiguration(
             getName(annotation),
-            now.plus(getLockAtMostFor(annotation)),
-            now.plus(getLockAtLeastFor(annotation)));
+            getLockAtMostFor(annotation),
+            getLockAtLeastFor(annotation)
+        );
     }
 
     private String getName(AnnotationValue<SchedulerLock> annotation) {

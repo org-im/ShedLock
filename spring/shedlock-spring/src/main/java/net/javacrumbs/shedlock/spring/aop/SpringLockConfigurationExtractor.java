@@ -84,8 +84,8 @@ class SpringLockConfigurationExtractor implements LockConfigurationExtractor {
         Instant now = now();
         return new LockConfiguration(
             getName(annotation),
-            now.plus(getLockAtMostFor(annotation)),
-            now.plus(getLockAtLeastFor(annotation)));
+            getLockAtMostFor(annotation),
+            getLockAtLeastFor(annotation));
     }
 
     private String getName(AnnotationData annotation) {

@@ -17,13 +17,17 @@ package net.javacrumbs.shedlock.core;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.TemporalAmount;
 import java.util.Objects;
 
 /**
  * Lock configuration.
  */
 public class LockConfiguration {
+    private final Instant createdAt = Instant.now();
+
     private final String name;
 
     /**
@@ -31,19 +35,45 @@ public class LockConfiguration {
      * died without releasing the lock) Can be ignored by providers which can detect dead processes (like Zookeeper)
      */
     private final Instant lockAtMostUntil;
+
+    private final TemporalAmount lockAtMostFor;
+
     /**
      * The lock will be held until this time even if the task holding the lock finishes earlier.
      */
     private final Instant lockAtLeastUntil;
 
+    private final TemporalAmount lockAtLeastFor;
+
+    @Deprecated
     public LockConfiguration(@NotNull String name, @NotNull Instant lockAtMostUntil) {
         this(name, lockAtMostUntil, Instant.now());
     }
 
+    @Deprecated
     public LockConfiguration(@NotNull String name, @NotNull Instant lockAtMostUntil, @NotNull Instant lockAtLeastUntil) {
         this.name = Objects.requireNonNull(name);
         this.lockAtMostUntil = Objects.requireNonNull(lockAtMostUntil);
+        this.lockAtMostFor = Duration.between(createdAt, lockAtMostUntil);
         this.lockAtLeastUntil = Objects.requireNonNull(lockAtLeastUntil);
+        this.lockAtLeastFor = Duration.between(createdAt, lockAtLeastUntil);
+        if (lockAtLeastUntil.isAfter(lockAtMostUntil)) {
+            throw new IllegalArgumentException("lockAtMostUntil is before lockAtLeastUntil for lock '" + name + "'.");
+        }
+        if (lockAtMostUntil.isBefore(Instant.now())) {
+            throw new IllegalArgumentException("lockAtMostUntil is in the past for lock '" + name + "'.");
+        }
+        if (name.isEmpty()) {
+            throw new IllegalArgumentException("lock name can not be empty");
+        }
+    }
+
+    public LockConfiguration(@NotNull String name, @NotNull TemporalAmount lockAtMostFor, @NotNull TemporalAmount lockAtLeastFor) {
+        this.name = Objects.requireNonNull(name);
+        this.lockAtMostFor = Objects.requireNonNull(lockAtMostFor);
+        this.lockAtMostUntil = createdAt.plus(lockAtMostFor);
+        this.lockAtLeastFor = Objects.requireNonNull(lockAtLeastFor);
+        this.lockAtLeastUntil = createdAt.plus(lockAtLeastFor);
         if (lockAtLeastUntil.isAfter(lockAtMostUntil)) {
             throw new IllegalArgumentException("lockAtMostUntil is before lockAtLeastUntil for lock '" + name + "'.");
         }

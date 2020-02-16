@@ -21,7 +21,7 @@ import net.javacrumbs.shedlock.core.SimpleLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
+import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
@@ -47,7 +47,7 @@ public class FuzzTester {
     private final LockProvider lockProvider;
 
     private int counter;
-    private final LockConfiguration config = new LockConfiguration("lock", Instant.now().plus(5, ChronoUnit.MINUTES));
+    private final LockConfiguration config = new LockConfiguration("lock", Duration.of(5, ChronoUnit.MINUTES), Duration.ZERO);
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
