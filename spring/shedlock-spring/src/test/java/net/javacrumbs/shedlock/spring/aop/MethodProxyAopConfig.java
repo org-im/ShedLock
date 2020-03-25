@@ -72,6 +72,11 @@ public class MethodProxyAopConfig {
             called.set(true);
         }
 
+        @MyScheduled(name = "custom")
+        public void custom() {
+            called.set(true);
+        }
+
         @SchedulerLock(name = "runtimeException", lockAtMostFor = "100")
         public Void throwsRuntimeException() {
             called.set(true);

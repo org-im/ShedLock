@@ -82,6 +82,15 @@ public abstract class AbstractSchedulerProxyTest {
     }
 
     @Test
+    public void shouldUseCustomAnnotation() throws NoSuchMethodException, ExecutionException, InterruptedException {
+        Runnable task = task("custom");
+        taskScheduler.schedule(task, now()).get();
+        verify(lockProvider).lock(hasParams("custom", 30_000, getDefaultLockAtLeastFor()));
+        verify(simpleLock).unlock();
+    }
+
+
+    @Test
     public void shouldUserPropertyName() throws NoSuchMethodException, ExecutionException, InterruptedException {
         Runnable task = task("spelMethod");
         taskScheduler.schedule(task, now()).get();
@@ -131,6 +140,11 @@ public abstract class AbstractSchedulerProxyTest {
 
     @SchedulerLock(name = "lockName")
     public void annotatedMethod() {
+        assertRightSchedulerUsed();
+    }
+
+    @MyScheduled(name = "custom")
+    public void custom() {
         assertRightSchedulerUsed();
     }
 
